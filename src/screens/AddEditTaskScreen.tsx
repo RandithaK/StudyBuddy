@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,11 @@ import {
   TouchableOpacity,
   TextInput,
   Switch,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useMutation, useQuery } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
 import {
@@ -18,12 +21,17 @@ import {
   BellIcon,
   BookIcon,
 } from '../components/Icons';
-import { courses, Task } from '../data/mockData';
+import {
+  CREATE_TASK_MUTATION,
+  UPDATE_TASK_MUTATION,
+  GET_TASKS_QUERY,
+  GET_COURSES_QUERY,
+} from '../api/queries';
 
 interface AddEditTaskScreenProps {
-  task: Task | null;
+  task: any | null;
   onClose: () => void;
-  onSave: (task: Task) => void;
+  onSave: () => void;
 }
 
 const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
@@ -42,24 +50,71 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
 
   const [showCoursePicker, setShowCoursePicker] = useState(false);
 
+  const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES_QUERY);
+  
+  const [createTask, { loading: creating }] = useMutation(CREATE_TASK_MUTATION, {
+    refetchQueries: [{ query: GET_TASKS_QUERY }],
+    onCompleted: () => {
+      onSave();
+      onClose();
+    },
+    onError: (error) => {
+      Alert.alert('Error', error.message);
+    },
+  });
+
+  const [updateTask, { loading: updating }] = useMutation(UPDATE_TASK_MUTATION, {
+    refetchQueries: [{ query: GET_TASKS_QUERY }],
+    onCompleted: () => {
+      onSave();
+      onClose();
+    },
+    onError: (error) => {
+      Alert.alert('Error', error.message);
+    },
+  });
+
+  const courses = coursesData?.courses || [];
+  const isLoading = coursesLoading || creating || updating;
+
   const handleSubmit = () => {
     if (!formData.title || !formData.dueDate || !formData.dueTime) {
+      Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
     }
 
-    onSave({
-      id: task?.id || Date.now().toString(),
-      title: formData.title,
-      description: formData.description,
-      courseId: formData.courseId,
-      dueDate: formData.dueDate,
-      dueTime: formData.dueTime,
-      hasReminder: formData.hasReminder,
-      completed: task?.completed || false,
-    });
+    if (task) {
+      updateTask({
+        variables: {
+          id: task.id,
+          input: {
+            title: formData.title,
+            description: formData.description,
+            courseId: formData.courseId,
+            dueDate: formData.dueDate,
+            dueTime: formData.dueTime,
+            hasReminder: formData.hasReminder,
+            completed: task.completed,
+          },
+        },
+      });
+    } else {
+      createTask({
+        variables: {
+          input: {
+            title: formData.title,
+            description: formData.description,
+            courseId: formData.courseId,
+            dueDate: formData.dueDate,
+            dueTime: formData.dueTime,
+            hasReminder: formData.hasReminder,
+          },
+        },
+      });
+    }
   };
 
-  const selectedCourse = courses.find((c) => c.id === formData.courseId);
+  const selectedCourse = courses.find((c: any) => c.id === formData.courseId);
 
   return (
     <View style={styles.container}>
@@ -125,7 +180,7 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
                 {selectedCourse ? (
                   <View style={styles.selectedCourse}>
                     <LinearGradient
-                      colors={[selectedCourse.colorFrom, selectedCourse.colorTo]}
+                      colors={[selectedCourse.color || '#6366f1', selectedCourse.color || '#a855f7']}
                       style={styles.courseDot}
                     />
                     <Text style={styles.selectButtonText}>
@@ -139,7 +194,7 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
 
               {showCoursePicker && (
                 <View style={styles.pickerContainer}>
-                  {courses.map((course) => (
+                  {courses.map((course: any) => (
                     <TouchableOpacity
                       key={course.id}
                       style={styles.pickerItem}
@@ -149,7 +204,7 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
                       }}
                     >
                       <LinearGradient
-                        colors={[course.colorFrom, course.colorTo]}
+                        colors={[course.color || '#6366f1', course.color || '#a855f7']}
                         style={styles.courseDot}
                       />
                       <Text style={styles.pickerItemText}>{course.name}</Text>
@@ -224,18 +279,27 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
                 style={styles.cancelButton}
                 onPress={onClose}
                 activeOpacity={0.8}
+                disabled={isLoading}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={handleSubmit} activeOpacity={0.8}>
+              <TouchableOpacity 
+                onPress={handleSubmit} 
+                activeOpacity={0.8}
+                disabled={isLoading}
+              >
                 <LinearGradient
                   colors={['#6366f1', '#a855f7']}
                   style={styles.submitButton}
                 >
-                  <Text style={styles.submitButtonText}>
-                    {task ? 'Update Task' : 'Create Task'}
-                  </Text>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.submitButtonText}>
+                      {task ? 'Update Task' : 'Create Task'}
+                    </Text>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
             </View>

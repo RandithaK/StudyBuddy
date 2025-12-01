@@ -5,16 +5,19 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useQuery } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
 import { ChevronLeftIcon, CheckSquareIcon, CheckIcon } from '../components/Icons';
-import { tasks, getCourseById, formatDate, Task } from '../data/mockData';
+import { formatDate } from '../data/mockData';
+import { GET_TASKS_QUERY, GET_COURSES_QUERY } from '../api/queries';
 
 interface TasksScreenProps {
   selectedCourse: string | null;
-  onEditTask: (task: Task) => void;
+  onEditTask: (task: any) => void;
   onBack: () => void;
 }
 
@@ -26,13 +29,29 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
   onBack,
 }) => {
   const [filter, setFilter] = useState<FilterType>('all');
+  
+  const { data: tasksData, loading: tasksLoading } = useQuery(GET_TASKS_QUERY);
+  const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES_QUERY);
 
-  const course = selectedCourse ? getCourseById(selectedCourse) : null;
+  const isLoading = tasksLoading || coursesLoading;
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  const tasks = tasksData?.tasks || [];
+  const courses = coursesData?.courses || [];
+
+  const course = selectedCourse ? courses.find((c: any) => c.id === selectedCourse) : null;
   const screenTitle = course ? course.name : 'All Tasks';
 
   const filterTasks = () => {
     let filtered = selectedCourse
-      ? tasks.filter((t) => t.courseId === selectedCourse)
+      ? tasks.filter((t: any) => t.courseId === selectedCourse)
       : tasks;
 
     const today = new Date();
@@ -43,7 +62,7 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
     switch (filter) {
       case 'week':
         filtered = filtered.filter(
-          (t) =>
+          (t: any) =>
             !t.completed &&
             new Date(t.dueDate) >= today &&
             new Date(t.dueDate) <= weekFromNow,
@@ -51,15 +70,15 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
         break;
       case 'overdue':
         filtered = filtered.filter(
-          (t) => !t.completed && new Date(t.dueDate) < today,
+          (t: any) => !t.completed && new Date(t.dueDate) < today,
         );
         break;
       case 'completed':
-        filtered = filtered.filter((t) => t.completed);
+        filtered = filtered.filter((t: any) => t.completed);
         break;
     }
 
-    return filtered.sort((a, b) => {
+    return filtered.sort((a: any, b: any) => {
       if (a.completed !== b.completed) return a.completed ? 1 : -1;
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
@@ -93,6 +112,7 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
             <Text style={styles.subtitle}>{filteredTasks.length} tasks</Text>
           </View>
         </View>
+        <CheckSquareIcon size={32} color="#6366f1" />
       </View>
 
       {/* Filter Chips */}
@@ -132,8 +152,8 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
             <Text style={styles.emptyText}>No tasks found</Text>
           </GlassCard>
         ) : (
-          filteredTasks.map((task) => {
-            const taskCourse = getCourseById(task.courseId);
+          filteredTasks.map((task: any) => {
+            const taskCourse = task.course;
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const isOverdue = new Date(task.dueDate) < today && !task.completed;
@@ -182,7 +202,7 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
                     <View style={styles.taskMeta}>
                       {taskCourse && (
                         <LinearGradient
-                          colors={[taskCourse.colorFrom, taskCourse.colorTo]}
+                          colors={[taskCourse.color || '#6366f1', taskCourse.color || '#a855f7']}
                           style={styles.courseBadge}
                         >
                           <Text style={styles.courseBadgeText}>
@@ -236,6 +256,9 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
     marginTop: 8,
   },
@@ -400,6 +423,10 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

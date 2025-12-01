@@ -5,8 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useQuery } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
 import {
@@ -14,7 +16,8 @@ import {
   ChevronRightIcon,
   CalendarIcon,
 } from '../components/Icons';
-import { events, getCourseById, formatTime } from '../data/mockData';
+import { formatTime } from '../data/mockData';
+import { GET_EVENTS_QUERY } from '../api/queries';
 
 interface CalendarScreenProps {
   onAddTask: () => void;
@@ -23,6 +26,18 @@ interface CalendarScreenProps {
 const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(2025, 11, 1)); // December 2025
   const [selectedDate, setSelectedDate] = useState('2025-12-01');
+
+  const { data, loading } = useQuery(GET_EVENTS_QUERY);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  const events = data?.events || [];
 
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
@@ -46,10 +61,10 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
     const dateStr = `${currentMonth.getFullYear()}-${String(
       currentMonth.getMonth() + 1,
     ).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return events.filter((e) => e.date === dateStr);
+    return events.filter((e: any) => e.date === dateStr);
   };
 
-  const selectedDateEvents = events.filter((e) => e.date === selectedDate);
+  const selectedDateEvents = events.filter((e: any) => e.date === selectedDate);
 
   const handlePrevMonth = () => {
     setCurrentMonth(
@@ -155,7 +170,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
                     </Text>
                     {dayEvents.length > 0 && (
                       <View style={styles.dotsContainer}>
-                        {dayEvents.slice(0, 3).map((_evt, i) => (
+                        {dayEvents.slice(0, 3).map((_evt: any, i: number) => (
                           <View
                             key={i}
                             style={[styles.dot, styles.dotWhite]}
@@ -169,7 +184,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
                     <Text style={styles.dayText}>{day}</Text>
                     {dayEvents.length > 0 && (
                       <View style={styles.dotsContainer}>
-                        {dayEvents.slice(0, 3).map((_e, i) => (
+                        {dayEvents.slice(0, 3).map((_e: any, i: number) => (
                           <View key={i} style={[styles.dot, styles.dotPurple]} />
                         ))}
                       </View>
@@ -202,8 +217,8 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
           </View>
         ) : (
           <View style={styles.agendaList}>
-            {selectedDateEvents.map((event) => {
-              const course = getCourseById(event.courseId);
+            {selectedDateEvents.map((event: any) => {
+              const course = event.course;
               return (
                 <View key={event.id} style={styles.agendaItem}>
                   <View style={styles.agendaTime}>
@@ -219,7 +234,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
                     <Text style={styles.agendaEventTitle}>{event.title}</Text>
                     {course && (
                       <LinearGradient
-                        colors={[course.colorFrom, course.colorTo]}
+                        colors={[course.color || '#6366f1', course.color || '#a855f7']}
                         style={styles.courseBadge}
                       >
                         <Text style={styles.courseBadgeText}>{course.name}</Text>
@@ -444,6 +459,10 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

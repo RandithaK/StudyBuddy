@@ -8,27 +8,31 @@ import { StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ApolloProvider } from '@apollo/client';
 
 import SplashScreen from './src/screens/SplashScreen';
 import MainTabs from './src/navigation/MainTabs';
 import AccountScreen from './src/screens/AccountScreen';
 import AddEditTaskScreen from './src/screens/AddEditTaskScreen';
 import { Task } from './src/data/mockData';
+import { client } from './src/api/client';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import AuthStack from './src/navigation/AuthStack';
 
 type AppScreen = 'splash' | 'main' | 'account' | 'addEditTask';
 
-function App(): React.JSX.Element {
+function AuthenticatedApp(): React.JSX.Element {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('splash');
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  // Auto-dismiss splash screen after 5 seconds (optional, user can tap to continue)
+  // Auto-dismiss splash screen after 2 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentScreen === 'splash') {
         setCurrentScreen('main');
       }
-    }, 5000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, [currentScreen]);
@@ -113,6 +117,22 @@ function App(): React.JSX.Element {
   };
 
   return (
+    <View style={styles.container}>{renderScreen()}</View>
+  );
+}
+
+function Root() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <SplashScreen onContinue={() => {}} />;
+  }
+
+  return user ? <AuthenticatedApp /> : <AuthStack />;
+}
+
+export default function App() {
+  return (
     <GestureHandlerRootView style={styles.container}>
       <SafeAreaProvider>
         <StatusBar
@@ -120,7 +140,11 @@ function App(): React.JSX.Element {
           backgroundColor="transparent"
           translucent
         />
-        <View style={styles.container}>{renderScreen()}</View>
+        <ApolloProvider client={client}>
+          <AuthProvider>
+            <Root />
+          </AuthProvider>
+        </ApolloProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
@@ -136,5 +160,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f4ff',
   },
 });
-
-export default App;

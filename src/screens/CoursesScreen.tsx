@@ -5,20 +5,34 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useQuery } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
-import { PlusIcon } from '../components/Icons';
-import { courses } from '../data/mockData';
+import { PlusIcon, BookIcon } from '../components/Icons';
+import { GET_COURSES_QUERY } from '../api/queries';
 
 interface CoursesScreenProps {
   onSelectCourse: (courseId: string) => void;
 }
 
 const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
-  const totalCompletedTasks = courses.reduce((sum, c) => sum + c.completedTasks, 0);
-  const totalTasks = courses.reduce((sum, c) => sum + c.totalTasks, 0);
+  const { data, loading } = useQuery(GET_COURSES_QUERY);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  const courses = data?.courses || [];
+
+  const totalCompletedTasks = courses.reduce((sum: number, c: any) => sum + (c.completedTasks || 0), 0);
+  const totalTasks = courses.reduce((sum: number, c: any) => sum + (c.totalTasks || 0), 0);
 
   return (
     <ScrollView
@@ -32,20 +46,15 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
           <Text style={styles.title}>My Courses</Text>
           <Text style={styles.subtitle}>Manage your subjects</Text>
         </View>
-        <TouchableOpacity activeOpacity={0.8}>
-          <LinearGradient
-            colors={['#6366f1', '#a855f7']}
-            style={styles.addButton}
-          >
-            <PlusIcon size={24} color="#fff" />
-          </LinearGradient>
-        </TouchableOpacity>
+        <BookIcon size={32} color="#6366f1" />
       </View>
 
       {/* Course Cards */}
       <View style={styles.coursesList}>
-        {courses.map((course) => {
-          const progress = (course.completedTasks / course.totalTasks) * 100;
+        {courses.map((course: any) => {
+          const progress = course.totalTasks > 0 
+            ? (course.completedTasks / course.totalTasks) * 100 
+            : 0;
 
           return (
             <GlassCard
@@ -55,7 +64,7 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
             >
               <View style={styles.courseHeader}>
                 <LinearGradient
-                  colors={[course.colorFrom, course.colorTo]}
+                  colors={[course.color || '#6366f1', course.color || '#a855f7']}
                   style={styles.courseIcon}
                 >
                   <Text style={styles.courseInitial}>
@@ -74,7 +83,7 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
               {/* Progress Bar */}
               <View style={styles.progressBarContainer}>
                 <LinearGradient
-                  colors={[course.colorFrom, course.colorTo]}
+                  colors={[course.color || '#6366f1', course.color || '#a855f7']}
                   style={[styles.progressBar, { width: `${progress}%` }]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -276,6 +285,10 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

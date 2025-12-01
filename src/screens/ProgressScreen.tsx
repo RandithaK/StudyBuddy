@@ -5,24 +5,38 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Svg, { Rect, G, Text as SvgText } from 'react-native-svg';
+import { useQuery } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { TrendingUpIcon, TargetIcon, AwardIcon, CalendarIcon } from '../components/Icons';
-import { tasks } from '../data/mockData';
+import { GET_TASKS_QUERY } from '../api/queries';
 
 const { width } = Dimensions.get('window');
 
 const ProgressScreen: React.FC = () => {
+  const { data, loading } = useQuery(GET_TASKS_QUERY);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  const tasks = data?.tasks || [];
+
   // Calculate statistics
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.completed).length;
+  const completedTasks = tasks.filter((t: any) => t.completed).length;
   const pendingTasks = totalTasks - completedTasks;
-  const overallCompletion = Math.round((completedTasks / totalTasks) * 100);
-  const studyStreak = 7; // Mock data
+  const overallCompletion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const studyStreak = 7; // Mock data - would need a more complex backend tracking
 
-  // Weekly activity data
+  // Weekly activity data - Mock for now as we don't have historical completion data in the simple schema
   const weeklyData = [
     { day: 'Mon', tasks: 4 },
     { day: 'Tue', tasks: 6 },
@@ -373,6 +387,10 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

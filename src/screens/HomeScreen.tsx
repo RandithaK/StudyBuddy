@@ -5,8 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useQuery } from '@apollo/client';
+import { useNavigation } from '@react-navigation/native';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
 import {
@@ -16,14 +19,11 @@ import {
   UserIcon,
 } from '../components/Icons';
 import {
-  events,
-  tasks,
-  courses,
-  getCourseById,
   formatTime,
   formatDate,
   getTodayString,
 } from '../data/mockData';
+import { GET_TASKS_QUERY, GET_EVENTS_QUERY, GET_COURSES_QUERY } from '../api/queries';
 
 interface HomeScreenProps {
   onAddTask: () => void;
@@ -34,12 +34,30 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onAddTask: _onAddTask,
   onNavigateToAccount,
 }) => {
+  const { data: tasksData, loading: tasksLoading } = useQuery(GET_TASKS_QUERY);
+  const { data: eventsData, loading: eventsLoading } = useQuery(GET_EVENTS_QUERY);
+  const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES_QUERY);
+
+  const isLoading = tasksLoading || eventsLoading || coursesLoading;
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  const tasks = tasksData?.tasks || [];
+  const events = eventsData?.events || [];
+  const courses = coursesData?.courses || [];
+
   const today = getTodayString();
-  const todayEvents = events.filter((e) => e.date === today);
+  const todayEvents = events.filter((e: any) => e.date === today);
   const upcomingTasks = tasks
-    .filter((t) => !t.completed)
+    .filter((t: any) => !t.completed)
     .sort(
-      (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+      (a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
     )
     .slice(0, 5);
 
@@ -100,8 +118,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           {todayEvents.length === 0 ? (
             <Text style={styles.emptyText}>No events scheduled for today</Text>
           ) : (
-            todayEvents.map((event) => {
-              const course = getCourseById(event.courseId);
+            todayEvents.map((event: any) => {
+              const course = event.course;
               return (
                 <View key={event.id} style={styles.eventItem}>
                   <View style={styles.eventTime}>
@@ -117,7 +135,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     <Text style={styles.eventTitle}>{event.title}</Text>
                     {course && (
                       <LinearGradient
-                        colors={[course.colorFrom, course.colorTo]}
+                        colors={[course.color || '#6366f1', course.color || '#a855f7']}
                         style={styles.courseBadge}
                       >
                         <Text style={styles.courseBadgeText}>{course.name}</Text>
@@ -150,8 +168,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         </View>
 
         <View style={styles.tasksList}>
-          {upcomingTasks.map((task) => {
-            const course = getCourseById(task.courseId);
+          {upcomingTasks.map((task: any) => {
+            const course = task.course;
             const isOverdue = new Date(task.dueDate) < new Date();
 
             return (
@@ -168,7 +186,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     <View style={styles.taskMeta}>
                       {course && (
                         <LinearGradient
-                          colors={[course.colorFrom, course.colorTo]}
+                          colors={[course.color || '#6366f1', course.color || '#a855f7']}
                           style={styles.courseBadgeSmall}
                         >
                           <Text style={styles.courseBadgeTextSmall}>
@@ -417,6 +435,10 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

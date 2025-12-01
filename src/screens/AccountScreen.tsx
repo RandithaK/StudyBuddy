@@ -6,8 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useQuery } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
 import {
@@ -24,15 +26,33 @@ import {
   CalendarIcon,
   LogOutIcon,
 } from '../components/Icons';
-import { tasks, courses } from '../data/mockData';
+import { useAuth } from '../context/AuthContext';
+import { GET_TASKS_QUERY, GET_COURSES_QUERY } from '../api/queries';
 
 const AccountScreen: React.FC = () => {
+  const { user, logout } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+
+  const { data: tasksData, loading: tasksLoading } = useQuery(GET_TASKS_QUERY);
+  const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES_QUERY);
+
+  const isLoading = tasksLoading || coursesLoading;
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  const tasks = tasksData?.tasks || [];
+  const courses = coursesData?.courses || [];
 
   // Calculate user stats
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.completed).length;
-  const completionRate = Math.round((completedTasks / totalTasks) * 100);
+  const completedTasks = tasks.filter((t: any) => t.completed).length;
+  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   const activeCourses = courses.length;
 
   const settingsItems = [
@@ -88,7 +108,7 @@ const AccountScreen: React.FC = () => {
               colors={['#6366f1', '#a855f7']}
               style={styles.avatar}
             >
-              <Text style={styles.avatarText}>JD</Text>
+              <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'U'}</Text>
             </LinearGradient>
             <TouchableOpacity activeOpacity={0.8}>
               <LinearGradient
@@ -101,10 +121,10 @@ const AccountScreen: React.FC = () => {
           </View>
 
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>John Doe</Text>
+            <Text style={styles.profileName}>{user?.name || 'User'}</Text>
             <View style={styles.emailRow}>
               <MailIcon size={14} color="#6b7280" />
-              <Text style={styles.profileEmail}>john.doe@university.edu</Text>
+              <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
             </View>
             <LinearGradient
               colors={['#4ade80', '#10b981']}
@@ -213,24 +233,26 @@ const AccountScreen: React.FC = () => {
             </View>
           </GlassCard>
 
-          <GlassCard style={{...styles.settingItem, ...styles.logoutItem}}>
-            <View style={styles.settingContent}>
-              <LinearGradient
-                colors={['#ef4444', '#dc2626']}
-                style={styles.settingIcon}
-              >
-                <LogOutIcon size={24} color="#fff" />
-              </LinearGradient>
-              <View style={styles.settingInfo}>
-                <Text style={[styles.settingTitle, styles.logoutText]}>
-                  Log Out
-                </Text>
-                <Text style={styles.settingDescription}>
-                  Sign out of your account
-                </Text>
+          <TouchableOpacity activeOpacity={0.8} onPress={logout}>
+            <GlassCard style={{...styles.settingItem, ...styles.logoutItem}}>
+              <View style={styles.settingContent}>
+                <LinearGradient
+                  colors={['#ef4444', '#dc2626']}
+                  style={styles.settingIcon}
+                >
+                  <LogOutIcon size={24} color="#fff" />
+                </LinearGradient>
+                <View style={styles.settingInfo}>
+                  <Text style={[styles.settingTitle, styles.logoutText]}>
+                    Log Out
+                  </Text>
+                  <Text style={styles.settingDescription}>
+                    Sign out of your account
+                  </Text>
+                </View>
               </View>
-            </View>
-          </GlassCard>
+            </GlassCard>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -417,6 +439,10 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
