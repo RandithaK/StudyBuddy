@@ -95,3 +95,96 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+## Using the production backend & building for release 🔧
+
+This project supports multiple `.env` files and can be built with a production backend by setting `ENVFILE` at build time or by copying `.env.production` over `.env`.
+
+### Environment files
+
+- `.env` — default local env used for development (emulator/proxy to `10.0.2.2`).
+- `.env.production` — production values (we added a file which points `API_URL` to the Vercel host).
+
+`babel.config.js` reads `ENVFILE` at build time to determine which env file should be used by `react-native-dotenv`.
+
+### Production backend
+
+The production backend for this project is hosted at:
+
+```
+https://study-buddy-backend-three.vercel.app/api/query
+```
+
+This should be set as `API_URL` in `.env.production`.
+
+### Useful scripts
+
+We've added scripts to `package.json` that allow you to build and run with a specific env file.
+
+- Run Android with the development `.env`:
+```sh
+npm run android:debug:env
+```
+- Run Android with the production env (uses `.env.production`):
+```sh
+npm run android:prod:env
+```
+- Create a release APK (assemble):
+```sh
+npm run android:prod:assemble
+```
+- Build an Android App Bundle (AAB):
+```sh
+npm run android:prod:bundle
+```
+- Install a release build on a connected device (requires signing config):
+```sh
+npm run android:prod:install
+```
+- Copy `.env.production` to `.env` if needed:
+```sh
+npm run android:copy-prod-env
+```
+
+### Build notes and tips
+
+- If you switch env files, always restart Metro with cache reset:
+```sh
+npx react-native start --reset-cache
+```
+- The `ENVFILE` variable is read by Babel at build-time; make sure it is set when running the bundler or Gradle tasks.
+- For release builds that are going to the Play Store, make sure to configure a release keystore and signing information in `android/` (see `android/app/build.gradle`), and keep passwords in `gradle.properties` or CI secrets.
+- Use network inspection (Android Studio Logcat / Chrome DevTools) to confirm runtime network requests go to your production host.
+
+### Install dependencies first
+
+Before running any of the scripts above make sure you've installed npm dependencies in the root of the project:
+
+```bash
+npm install
+```
+
+If you prefer not to install `cross-env`, or if you're on Linux/macOS, you can use the native env assignment for running commands:
+
+```bash
+# Linux/macOS (no cross-env required)
+ENVFILE=.env.production npx react-native run-android
+```
+
+If you still see `cross-env: not found`, run `npm install` and then retry the script; on CI use `npm ci` to make sure dev dependencies are installed.
+
+### Verification commands
+
+Check backend health quickly via curl:
+```sh
+curl https://study-buddy-backend-three.vercel.app/api/health
+```
+
+Check a sample GraphQL request (example):
+```sh
+curl -X POST https://study-buddy-backend-three.vercel.app/api/query \
+	-H "Content-Type: application/json" \
+	-d '{"query":"{ __schema { types { name } } }"}'
+```
+
+If you want me to update the `README.md` in the backend repo (`StudyBuddy_Backend/README.md`) with the Vercel URL and notes on `MONGO_URI`, I can do that as a follow-up.
