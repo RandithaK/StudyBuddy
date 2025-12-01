@@ -21,6 +21,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onContinue }) => {
   const slideAnim3 = useRef(new Animated.Value(-100)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
+  // animation refs are stable (useRef), so it's safe to include them in the
+  // dependency list. This prevents the exhaustive-deps rule warning while
+  // keeping the effect to run once as refs are stable across renders.
   useEffect(() => {
     Animated.sequence([
       Animated.parallel([
@@ -57,7 +60,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onContinue }) => {
         }),
       ]),
     ]).start();
-  }, []);
+  }, [fadeAnim, scaleAnim, slideAnim1, slideAnim2, slideAnim3]);
 
   return (
     <View style={styles.container}>
