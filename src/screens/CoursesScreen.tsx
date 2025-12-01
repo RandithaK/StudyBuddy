@@ -1,0 +1,275 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import GlassCard from '../components/GlassCard';
+import { PlusIcon } from '../components/Icons';
+import { courses } from '../data/mockData';
+
+interface CoursesScreenProps {
+  onSelectCourse: (courseId: string) => void;
+}
+
+const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
+  const totalCompletedTasks = courses.reduce((sum, c) => sum + c.completedTasks, 0);
+  const totalTasks = courses.reduce((sum, c) => sum + c.totalTasks, 0);
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>My Courses</Text>
+          <Text style={styles.subtitle}>Manage your subjects</Text>
+        </View>
+        <TouchableOpacity activeOpacity={0.8}>
+          <LinearGradient
+            colors={['#6366f1', '#a855f7']}
+            style={styles.addButton}
+          >
+            <PlusIcon size={24} color="#fff" />
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+
+      {/* Course Cards */}
+      <View style={styles.coursesList}>
+        {courses.map((course) => {
+          const progress = (course.completedTasks / course.totalTasks) * 100;
+
+          return (
+            <GlassCard
+              key={course.id}
+              style={styles.courseCard}
+              onPress={() => onSelectCourse(course.id)}
+            >
+              <View style={styles.courseHeader}>
+                <LinearGradient
+                  colors={[course.colorFrom, course.colorTo]}
+                  style={styles.courseIcon}
+                >
+                  <Text style={styles.courseInitial}>
+                    {course.name.charAt(0)}
+                  </Text>
+                </LinearGradient>
+                <View style={styles.courseInfo}>
+                  <Text style={styles.courseName}>{course.name}</Text>
+                  <Text style={styles.courseProgress}>
+                    {course.completedTasks} of {course.totalTasks} tasks completed
+                  </Text>
+                </View>
+                <Text style={styles.percentText}>{Math.round(progress)}%</Text>
+              </View>
+
+              {/* Progress Bar */}
+              <View style={styles.progressBarContainer}>
+                <LinearGradient
+                  colors={[course.colorFrom, course.colorTo]}
+                  style={[styles.progressBar, { width: `${progress}%` }]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+              </View>
+
+              {/* Stats */}
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>
+                    {course.totalTasks - course.completedTasks}
+                  </Text>
+                  <Text style={styles.statLabel}>Remaining</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>{course.completedTasks}</Text>
+                  <Text style={styles.statLabel}>Completed</Text>
+                </View>
+              </View>
+            </GlassCard>
+          );
+        })}
+      </View>
+
+      {/* Summary Card */}
+      <GlassCard style={styles.summaryCard}>
+        <View style={styles.summaryContent}>
+          <View>
+            <Text style={styles.summaryTitle}>Total Courses</Text>
+            <Text style={styles.summarySubtitle}>
+              You're enrolled in {courses.length} courses
+            </Text>
+          </View>
+          <View style={styles.summaryStats}>
+            <Text style={styles.summaryNumber}>
+              {totalCompletedTasks}/{totalTasks}
+            </Text>
+            <Text style={styles.summaryLabel}>Tasks completed</Text>
+          </View>
+        </View>
+      </GlassCard>
+
+      <View style={styles.bottomSpacer} />
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f0f4ff',
+  },
+  contentContainer: {
+    padding: 24,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '300',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  addButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  coursesList: {
+    gap: 16,
+  },
+  courseCard: {
+    padding: 20,
+  },
+  courseHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    gap: 16,
+  },
+  courseIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  courseInitial: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  courseInfo: {
+    flex: 1,
+  },
+  courseName: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  courseProgress: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  percentText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  progressBarContainer: {
+    height: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 6,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  statItem: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    padding: 12,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  summaryCard: {
+    padding: 20,
+    marginTop: 16,
+  },
+  summaryContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  summaryTitle: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  summarySubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  summaryStats: {
+    alignItems: 'flex-end',
+  },
+  summaryNumber: {
+    fontSize: 28,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  bottomSpacer: {
+    height: 100,
+  },
+});
+
+export default CoursesScreen;
