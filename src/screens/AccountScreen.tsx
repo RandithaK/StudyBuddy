@@ -20,6 +20,7 @@ import {
   LockIcon,
   HelpCircleIcon,
   ChevronRightIcon,
+  ChevronLeftIcon,
   EditIcon,
   AwardIcon,
   TargetIcon,
@@ -29,7 +30,17 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { GET_TASKS_QUERY, GET_COURSES_QUERY } from '../api/queries';
 
-const AccountScreen: React.FC = () => {
+interface AccountScreenProps {
+  onBack: () => void;
+  onNavigateToEditProfile: () => void;
+  onNavigateToDeveloperContact: () => void;
+}
+
+const AccountScreen: React.FC<AccountScreenProps> = ({ 
+  onBack,
+  onNavigateToEditProfile,
+  onNavigateToDeveloperContact,
+}) => {
   const { user, logout } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
 
@@ -81,10 +92,11 @@ const AccountScreen: React.FC = () => {
     },
     {
       icon: HelpCircleIcon,
-      title: 'Help & Support',
-      description: 'Get help with the app',
+      title: 'Developer Contact',
+      description: 'Get help & view team info',
       hasToggle: false,
       colors: ['#3b82f6', '#6366f1'],
+      onPress: onNavigateToDeveloperContact,
     },
   ];
 
@@ -96,8 +108,13 @@ const AccountScreen: React.FC = () => {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>My Account</Text>
-        <Text style={styles.subtitle}>Manage your profile and preferences</Text>
+        <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <ChevronLeftIcon size={24} color="#1f2937" />
+        </TouchableOpacity>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.title}>My Account</Text>
+          <Text style={styles.subtitle}>Manage your profile and preferences</Text>
+        </View>
       </View>
 
       {/* Profile Card */}
@@ -110,7 +127,7 @@ const AccountScreen: React.FC = () => {
             >
               <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'U'}</Text>
             </LinearGradient>
-            <TouchableOpacity activeOpacity={0.8}>
+            <TouchableOpacity activeOpacity={0.8} onPress={onNavigateToEditProfile}>
               <LinearGradient
                 colors={['#6366f1', '#a855f7']}
                 style={styles.editButton}
@@ -127,11 +144,11 @@ const AccountScreen: React.FC = () => {
               <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
             </View>
             <LinearGradient
-              colors={['#4ade80', '#10b981']}
+              colors={user?.isVerified ? ['#4ade80', '#10b981'] : ['#fbbf24', '#d97706']}
               style={styles.premiumBadge}
             >
               <AwardIcon size={14} color="#fff" />
-              <Text style={styles.premiumText}>Premium Student</Text>
+              <Text style={styles.premiumText}>{user?.isVerified ? 'Verified Student' : 'Unverified Student'}</Text>
             </LinearGradient>
           </View>
         </View>
@@ -181,7 +198,12 @@ const AccountScreen: React.FC = () => {
             const Icon = item.icon;
             return (
               <GlassCard key={item.title} style={styles.settingItem}>
-                <View style={styles.settingContent}>
+                <TouchableOpacity 
+                  style={styles.settingContent}
+                  onPress={item.onPress}
+                  disabled={!item.onPress && item.hasToggle}
+                  activeOpacity={item.onPress ? 0.7 : 1}
+                >
                   <LinearGradient
                     colors={item.colors}
                     style={styles.settingIcon}
@@ -204,7 +226,7 @@ const AccountScreen: React.FC = () => {
                   ) : (
                     <ChevronRightIcon size={20} color="#9ca3af" />
                   )}
-                </View>
+                </TouchableOpacity>
               </GlassCard>
             );
           })}
@@ -216,7 +238,11 @@ const AccountScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>Account</Text>
         <View style={styles.settingsList}>
           <GlassCard style={styles.settingItem}>
-            <View style={styles.settingContent}>
+            <TouchableOpacity 
+              style={styles.settingContent}
+              onPress={onNavigateToEditProfile}
+              activeOpacity={0.7}
+            >
               <LinearGradient
                 colors={['#60a5fa', '#06b6d4']}
                 style={styles.settingIcon}
@@ -230,7 +256,7 @@ const AccountScreen: React.FC = () => {
                 </Text>
               </View>
               <ChevronRightIcon size={20} color="#9ca3af" />
-            </View>
+            </TouchableOpacity>
           </GlassCard>
 
           <TouchableOpacity activeOpacity={0.8} onPress={logout}>
@@ -270,8 +296,18 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: 24,
     marginTop: 8,
+  },
+  backButton: {
+    padding: 8,
+    marginLeft: -8,
+    marginRight: 8,
+  },
+  headerTextContainer: {
+    flex: 1,
   },
   title: {
     fontSize: 32,

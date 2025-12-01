@@ -12,21 +12,27 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation } from '@apollo/client';
 import { REGISTER_MUTATION } from '../api/queries';
-import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import { AppLogo } from '../components/Icons';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
-  const { login } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const [registerMutation, { loading }] = useMutation(REGISTER_MUTATION, {
-    onCompleted: async (data: any) => {
-      const { token, user } = data.register;
-      await login(token, user);
+    onCompleted: async () => {
+      Alert.alert(
+        'Registration Successful',
+        'Please check your email to verify your account before logging in.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Login' as never),
+          },
+        ]
+      );
     },
     onError: (error: any) => {
       Alert.alert('Registration Failed', error.message);

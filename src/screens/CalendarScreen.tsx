@@ -20,12 +20,14 @@ import { formatTime } from '../data/mockData';
 import { GET_EVENTS_QUERY } from '../api/queries';
 
 interface CalendarScreenProps {
-  onAddTask: () => void;
+  onAddEvent: () => void;
 }
 
-const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 11, 1)); // December 2025
-  const [selectedDate, setSelectedDate] = useState('2025-12-01');
+const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddEvent }) => {
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const [selectedDate, setSelectedDate] = useState(todayStr);
 
   const { data, loading } = useQuery(GET_EVENTS_QUERY);
 
@@ -148,7 +150,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
             ).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const dayEvents = getEventsForDate(day);
             const isSelected = dateStr === selectedDate;
-            const isToday = dateStr === '2025-12-01';
+            const isToday = dateStr === todayStr;
 
             return (
               <TouchableOpacity
@@ -206,7 +208,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ onAddTask }) => {
         {selectedDateEvents.length === 0 ? (
           <View style={styles.emptyAgenda}>
             <Text style={styles.emptyText}>No events scheduled for this day</Text>
-            <TouchableOpacity onPress={onAddTask} activeOpacity={0.8}>
+            <TouchableOpacity onPress={onAddEvent} activeOpacity={0.8}>
               <LinearGradient
                 colors={['#6366f1', '#a855f7']}
                 style={styles.addButton}

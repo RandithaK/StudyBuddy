@@ -30,22 +30,81 @@ const ProgressScreen: React.FC = () => {
   const tasks = data?.tasks || [];
 
   // Calculate statistics
+  // Calculate statistics
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t: any) => t.completed).length;
   const pendingTasks = totalTasks - completedTasks;
   const overallCompletion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  const studyStreak = 7; // Mock data - would need a more complex backend tracking
 
-  // Weekly activity data - Mock for now as we don't have historical completion data in the simple schema
-  const weeklyData = [
-    { day: 'Mon', tasks: 4 },
-    { day: 'Tue', tasks: 6 },
-    { day: 'Wed', tasks: 5 },
-    { day: 'Thu', tasks: 8 },
-    { day: 'Fri', tasks: 7 },
-    { day: 'Sat', tasks: 3 },
-    { day: 'Sun', tasks: 2 },
-  ];
+  // Calculate Study Streak
+  // Sort completed tasks by date descending
+  const completedTasksList = tasks
+    .filter((t: any) => t.completed && t.completedAt)
+    .sort((a: any, b: any) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
+
+  let studyStreak = 0;
+  if (completedTasksList.length > 0) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Check if we have a task completed today
+    const lastTaskDate = new Date(completedTasksList[0].completedAt);
+    lastTaskDate.setHours(0, 0, 0, 0);
+    
+    if (lastTaskDate.getTime() === today.getTime()) {
+      studyStreak = 1;
+    } else if (lastTaskDate.getTime() === today.getTime() - 86400000) {
+      // Last task was yesterday
+      studyStreak = 1;
+    }
+
+    // If we have a streak started, check previous days
+    if (studyStreak > 0) {
+      let currentDate = new Date(lastTaskDate);
+      
+      // Iterate through unique dates in completed tasks
+      const uniqueDates = new Set();
+      completedTasksList.forEach((t: any) => {
+        const d = new Date(t.completedAt);
+        d.setHours(0, 0, 0, 0);
+        uniqueDates.add(d.getTime());
+      });
+
+      // Check consecutive days backwards
+      while (true) {
+        currentDate.setDate(currentDate.getDate() - 1);
+        if (uniqueDates.has(currentDate.getTime())) {
+          studyStreak++;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
+  // Calculate Weekly Activity
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const today = new Date();
+  const weeklyData = [];
+
+  // Generate last 7 days including today
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+    
+    const dayName = days[d.getDay()];
+    
+    // Count tasks completed on this day
+    const count = tasks.filter((t: any) => {
+      if (!t.completed || !t.completedAt) return false;
+      const taskDate = new Date(t.completedAt);
+      taskDate.setHours(0, 0, 0, 0);
+      return taskDate.getTime() === d.getTime();
+    }).length;
+
+    weeklyData.push({ day: dayName, tasks: count });
+  }
 
   const maxTasks = Math.max(...weeklyData.map((d) => d.tasks));
   const chartWidth = width - 88;

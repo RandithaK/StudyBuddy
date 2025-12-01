@@ -8,12 +8,12 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
 import { ChevronLeftIcon, CheckSquareIcon, CheckIcon } from '../components/Icons';
 import { formatDate } from '../data/mockData';
-import { GET_TASKS_QUERY, GET_COURSES_QUERY } from '../api/queries';
+import { GET_TASKS_QUERY, GET_COURSES_QUERY, UPDATE_TASK_MUTATION } from '../api/queries';
 
 interface TasksScreenProps {
   selectedCourse: string | null;
@@ -33,7 +33,32 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
   const { data: tasksData, loading: tasksLoading } = useQuery(GET_TASKS_QUERY);
   const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES_QUERY);
 
+  const [updateTask] = useMutation(UPDATE_TASK_MUTATION, {
+    refetchQueries: [{ query: GET_TASKS_QUERY }, { query: GET_COURSES_QUERY }],
+  });
+
   const isLoading = tasksLoading || coursesLoading;
+
+  const toggleTaskCompletion = async (task: any) => {
+    try {
+      await updateTask({
+        variables: {
+          input: {
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            courseId: task.courseId,
+            dueDate: task.dueDate,
+            dueTime: task.dueTime,
+            completed: !task.completed,
+            hasReminder: task.hasReminder,
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -173,7 +198,7 @@ const TasksScreen: React.FC<TasksScreenProps> = ({
                     ]}
                     onPress={(e) => {
                       e.stopPropagation();
-                      // Toggle completion would go here
+                      toggleTaskCompletion(task);
                     }}
                   >
                     {task.completed && <CheckIcon size={16} color="#fff" />}

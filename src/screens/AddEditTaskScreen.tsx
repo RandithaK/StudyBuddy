@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,9 @@ import {
   Switch,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import LinearGradient from 'react-native-linear-gradient';
 import { useMutation, useQuery } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
@@ -49,11 +51,13 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
   });
 
   const [showCoursePicker, setShowCoursePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES_QUERY);
   
   const [createTask, { loading: creating }] = useMutation(CREATE_TASK_MUTATION, {
-    refetchQueries: [{ query: GET_TASKS_QUERY }],
+    refetchQueries: [{ query: GET_TASKS_QUERY }, { query: GET_COURSES_QUERY }],
     onCompleted: () => {
       onSave();
       onClose();
@@ -64,7 +68,7 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
   });
 
   const [updateTask, { loading: updating }] = useMutation(UPDATE_TASK_MUTATION, {
-    refetchQueries: [{ query: GET_TASKS_QUERY }],
+    refetchQueries: [{ query: GET_TASKS_QUERY }, { query: GET_COURSES_QUERY }],
     onCompleted: () => {
       onSave();
       onClose();
@@ -221,15 +225,28 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
                   <CalendarIcon size={16} color="#374151" />
                   <Text style={styles.label}>Due Date</Text>
                 </View>
-                <TextInput
-                  style={styles.input}
-                  value={formData.dueDate}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, dueDate: text })
-                  }
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#9ca3af"
-                />
+                <TouchableOpacity
+                  style={styles.selectButton}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text style={formData.dueDate ? styles.selectButtonText : styles.selectPlaceholder}>
+                    {formData.dueDate || 'Select date'}
+                  </Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={formData.dueDate ? new Date(formData.dueDate) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, selectedDate) => {
+                      setShowDatePicker(Platform.OS === 'ios');
+                      if (selectedDate) {
+                        const dateStr = selectedDate.toISOString().split('T')[0];
+                        setFormData({ ...formData, dueDate: dateStr });
+                      }
+                    }}
+                  />
+                )}
               </View>
 
               <View style={[styles.field, styles.halfField]}>
@@ -237,15 +254,33 @@ const AddEditTaskScreen: React.FC<AddEditTaskScreenProps> = ({
                   <ClockIcon size={16} color="#374151" />
                   <Text style={styles.label}>Time</Text>
                 </View>
-                <TextInput
-                  style={styles.input}
-                  value={formData.dueTime}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, dueTime: text })
-                  }
-                  placeholder="HH:MM"
-                  placeholderTextColor="#9ca3af"
-                />
+                <TouchableOpacity
+                  style={styles.selectButton}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Text style={formData.dueTime ? styles.selectButtonText : styles.selectPlaceholder}>
+                    {formData.dueTime || 'Select time'}
+                  </Text>
+                </TouchableOpacity>
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={
+                      formData.dueTime
+                        ? new Date(`2000-01-01T${formData.dueTime}`)
+                        : new Date()
+                    }
+                    mode="time"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, selectedTime) => {
+                      setShowTimePicker(Platform.OS === 'ios');
+                      if (selectedTime) {
+                        const hours = selectedTime.getHours().toString().padStart(2, '0');
+                        const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
+                        setFormData({ ...formData, dueTime: `${hours}:${minutes}` });
+                      }
+                    }}
+                  />
+                )}
               </View>
             </View>
 

@@ -22,20 +22,28 @@ const Tab = createBottomTabNavigator();
 
 interface MainTabsProps {
   onAddTask: () => void;
+  onAddEvent: () => void;
+  onAddCourse: () => void;
   onNavigateToAccount: () => void;
   selectedCourse: string | null;
   onSelectCourse: (courseId: string) => void;
   onEditTask: (task: any) => void;
   onClearCourse: () => void;
+  onTabChange: (tabName: string) => void;
+  initialRouteName?: string;
 }
 
 const MainTabs: React.FC<MainTabsProps> = ({
   onAddTask,
+  onAddEvent,
+  onAddCourse,
   onNavigateToAccount,
   selectedCourse,
   onSelectCourse,
   onEditTask,
   onClearCourse,
+  onTabChange,
+  initialRouteName = 'Home',
 }) => {
   const getTabIcon = (routeName: string, focused: boolean) => {
     const color = focused ? '#6366f1' : '#6b7280';
@@ -60,6 +68,7 @@ const MainTabs: React.FC<MainTabsProps> = ({
   return (
     <View style={styles.container}>
       <Tab.Navigator
+        initialRouteName={initialRouteName}
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarIcon: ({ focused }) => getTabIcon(route.name, focused),
@@ -69,6 +78,12 @@ const MainTabs: React.FC<MainTabsProps> = ({
           tabBarItemStyle: styles.tabBarItem,
           tabBarLabelStyle: styles.tabBarLabel,
         })}
+        screenListeners={{
+          state: (e) => {
+            const route = e.data.state.routes[e.data.state.index];
+            onTabChange(route.name);
+          },
+        }}
       >
         <Tab.Screen name="Home">
           {() => (
@@ -79,10 +94,10 @@ const MainTabs: React.FC<MainTabsProps> = ({
           )}
         </Tab.Screen>
         <Tab.Screen name="Calendar">
-          {() => <CalendarScreen onAddTask={onAddTask} />}
+          {() => <CalendarScreen onAddEvent={onAddEvent} />}
         </Tab.Screen>
         <Tab.Screen name="Courses">
-          {() => <CoursesScreen onSelectCourse={onSelectCourse} />}
+          {() => <CoursesScreen onSelectCourse={onSelectCourse} onAddCourse={onAddCourse} />}
         </Tab.Screen>
         <Tab.Screen name="Tasks">
           {() => (

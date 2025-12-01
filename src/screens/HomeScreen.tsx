@@ -8,8 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useQuery } from '@apollo/client';
-import { useNavigation } from '@react-navigation/native';
+import { useQuery, useMutation } from '@apollo/client';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
 import {
@@ -17,13 +16,14 @@ import {
   AlertCircleIcon,
   BookIcon,
   UserIcon,
+  CheckIcon,
 } from '../components/Icons';
 import {
   formatTime,
   formatDate,
   getTodayString,
 } from '../data/mockData';
-import { GET_TASKS_QUERY, GET_EVENTS_QUERY, GET_COURSES_QUERY } from '../api/queries';
+import { GET_TASKS_QUERY, GET_EVENTS_QUERY, GET_COURSES_QUERY, UPDATE_TASK_MUTATION } from '../api/queries';
 
 interface HomeScreenProps {
   onAddTask: () => void;
@@ -38,7 +38,32 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const { data: eventsData, loading: eventsLoading } = useQuery(GET_EVENTS_QUERY);
   const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES_QUERY);
 
+  const [updateTask] = useMutation(UPDATE_TASK_MUTATION, {
+    refetchQueries: [{ query: GET_TASKS_QUERY }, { query: GET_COURSES_QUERY }],
+  });
+
   const isLoading = tasksLoading || eventsLoading || coursesLoading;
+
+  const toggleTaskCompletion = async (task: any) => {
+    try {
+      await updateTask({
+        variables: {
+          input: {
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            courseId: task.courseId,
+            dueDate: task.dueDate,
+            dueTime: task.dueTime,
+            completed: !task.completed,
+            hasReminder: task.hasReminder,
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -173,14 +198,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             const isOverdue = new Date(task.dueDate) < new Date();
 
             return (
-              <TouchableOpacity key={task.id} activeOpacity={0.7}>
-                <View style={styles.taskItem}>
-                  <View
-                    style={[
-                      styles.checkbox,
-                      task.completed && styles.checkboxChecked,
-                    ]}
-                  />
+              <View key={task.id} style={styles.taskItem}>
+                <TouchableOpacity
+                  style={[
+                    styles.checkbox,
+                    task.completed && styles.checkboxChecked,
+                  ]}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    toggleTaskCompletion(task);
+                  }}
+                >
+                  {task.completed && <CheckIcon size={12} color="#fff" />}
+                </TouchableOpacity>
                   <View style={styles.taskContent}>
                     <Text style={styles.taskTitle}>{task.title}</Text>
                     <View style={styles.taskMeta}>
@@ -205,7 +235,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     </View>
                   </View>
                 </View>
-              </TouchableOpacity>
             );
           })}
         </View>
@@ -379,6 +408,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#9ca3af',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   checkboxChecked: {
     backgroundColor: '#22c55e',

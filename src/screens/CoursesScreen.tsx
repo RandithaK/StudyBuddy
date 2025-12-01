@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,17 +9,29 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useQuery } from '@apollo/client';
+import { useFocusEffect } from '@react-navigation/native';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
-import { PlusIcon, BookIcon } from '../components/Icons';
+import { PlusIcon } from '../components/Icons';
 import { GET_COURSES_QUERY } from '../api/queries';
 
 interface CoursesScreenProps {
   onSelectCourse: (courseId: string) => void;
+  onAddCourse: () => void;
 }
 
-const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
-  const { data, loading } = useQuery(GET_COURSES_QUERY);
+const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse, onAddCourse }) => {
+  // Force a background network refresh when the screen mounts / focuses to avoid stale cache data
+  const { data, loading, refetch } = useQuery(GET_COURSES_QUERY, { fetchPolicy: 'cache-and-network' });
+
+  // Refetch when this screen becomes focused to ensure we show fresh numbers
+  useFocusEffect(
+    useCallback(() => {
+      if (refetch) {
+        refetch();
+      }
+    }, [refetch]),
+  );
 
   if (loading) {
     return (
@@ -30,6 +42,9 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
   }
 
   const courses = data?.courses || [];
+  
+  // Debug: log the full response to see what the backend returns
+  console.log('[CoursesScreen] GET_COURSES_QUERY response:', JSON.stringify(data, null, 2));
 
   const totalCompletedTasks = courses.reduce((sum: number, c: any) => sum + (c.completedTasks || 0), 0);
   const totalTasks = courses.reduce((sum: number, c: any) => sum + (c.totalTasks || 0), 0);
@@ -46,7 +61,18 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({ onSelectCourse }) => {
           <Text style={styles.title}>My Courses</Text>
           <Text style={styles.subtitle}>Manage your subjects</Text>
         </View>
-        <BookIcon size={32} color="#6366f1" />
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={onAddCourse}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={['#6366f1', '#a855f7']}
+            style={styles.addButtonGradient}
+          >
+            <PlusIcon size={24} color="#fff" />
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
 
       {/* Course Cards */}
@@ -160,13 +186,18 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
     shadowColor: '#6366f1',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
+  },
+  addButtonGradient: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   coursesList: {
     gap: 16,

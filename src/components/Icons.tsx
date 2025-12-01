@@ -350,11 +350,52 @@ export const PaletteIcon: React.FC<IconProps> = ({ size = 24, color = '#ffffff' 
   </Svg>
 );
 
+// Tag Icon
+export const TagIcon: React.FC<IconProps> = ({ size = 24, color = '#6b7280' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+      stroke={color}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Line x1={7} y1={7} x2={7.01} y2={7} stroke={color} strokeWidth={2} strokeLinecap="round" />
+  </Svg>
+);
+
 // Check Icon
 export const CheckIcon: React.FC<IconProps> = ({ size = 24, color = '#ffffff' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Polyline
       points="20,6 9,17 4,12"
+      stroke={color}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
+// Save Icon
+export const SaveIcon: React.FC<IconProps> = ({ size = 24, color = '#ffffff' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"
+      stroke={color}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Polyline
+      points="17,21 17,13 7,13 7,21"
+      stroke={color}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Polyline
+      points="7,3 7,8 15,8"
       stroke={color}
       strokeWidth={2}
       strokeLinecap="round"
