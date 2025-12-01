@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import GlassCard from '../components/GlassCard';
+import { hairline, subtleBorder, cardBG } from '../theme';
 import { ChevronLeftIcon, CheckSquareIcon, CheckIcon } from '../components/Icons';
 import { tasks, getCourseById, formatDate, Task } from '../data/mockData';
 
@@ -248,8 +249,8 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -280,8 +281,8 @@ const styles = StyleSheet.create({
   },
   filterChipInactive: {
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   filterChipText: {
     fontSize: 14,
@@ -298,6 +299,9 @@ const styles = StyleSheet.create({
   emptyCard: {
     padding: 48,
     alignItems: 'center',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
+    backgroundColor: cardBG,
   },
   emptyText: {
     marginTop: 12,
@@ -306,6 +310,9 @@ const styles = StyleSheet.create({
   },
   taskCard: {
     padding: 16,
+    backgroundColor: cardBG,
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   taskContent: {
     flexDirection: 'row',

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import GlassCard from '../components/GlassCard';
+import { hairline, subtleBorder, cardBG } from '../theme';
 import {
   ClockIcon,
   AlertCircleIcon,
@@ -248,8 +249,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -261,6 +262,9 @@ const styles = StyleSheet.create({
   scheduleCard: {
     padding: 20,
     marginBottom: 16,
+    borderWidth: hairline,
+    borderColor: subtleBorder,
+    backgroundColor: cardBG,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -291,11 +295,11 @@ const styles = StyleSheet.create({
   eventItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: cardBG,
     padding: 16,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     gap: 16,
   },
   eventTime: {
@@ -347,8 +351,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
     padding: 16,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     gap: 16,
   },
   checkbox: {

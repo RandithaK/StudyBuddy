@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import GlassCard from '../components/GlassCard';
+import { hairline, subtleBorder, cardBG } from '../theme';
 import {
   XIcon,
   CalendarIcon,
@@ -259,6 +260,9 @@ const styles = StyleSheet.create({
   },
   formCard: {
     padding: 24,
+    backgroundColor: cardBG,
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   header: {
     flexDirection: 'row',
@@ -300,8 +304,8 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     borderRadius: 12,
     padding: 14,
     fontSize: 16,
@@ -313,8 +317,8 @@ const styles = StyleSheet.create({
   },
   selectButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     borderRadius: 12,
     padding: 14,
   },
@@ -365,8 +369,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -399,8 +403,8 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',

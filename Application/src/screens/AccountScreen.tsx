@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import GlassCard from '../components/GlassCard';
+import { hairline, subtleBorder, cardBG } from '../theme';
 import {
   UserIcon,
   MailIcon,
@@ -263,6 +264,9 @@ const styles = StyleSheet.create({
   profileCard: {
     padding: 20,
     marginBottom: 16,
+    backgroundColor: cardBG,
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   profileContent: {
     flexDirection: 'row',
@@ -343,6 +347,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     alignItems: 'center',
+    backgroundColor: cardBG,
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   statIcon: {
     width: 48,

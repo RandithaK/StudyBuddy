@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { hairline, subtleBorder } from '../theme';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -124,10 +125,8 @@ const styles = StyleSheet.create({
     height: 72,
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    borderWidth: hairline,
+    borderColor: subtleBorder,
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 10,

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import GlassCard from '../components/GlassCard';
+import { hairline, subtleBorder, cardBG } from '../theme';
 import { PlusIcon } from '../components/Icons';
 import { courses } from '../data/mockData';
 
@@ -163,6 +164,9 @@ const styles = StyleSheet.create({
   },
   courseCard: {
     padding: 20,
+    backgroundColor: cardBG,
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   courseHeader: {
     flexDirection: 'row',
@@ -239,6 +243,9 @@ const styles = StyleSheet.create({
   summaryCard: {
     padding: 20,
     marginTop: 16,
+    backgroundColor: cardBG,
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   summaryContent: {
     flexDirection: 'row',
