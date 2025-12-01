@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, TouchableOpacity, PixelRatio } from 'react-native';
+import { View, StyleSheet, ViewStyle, TouchableOpacity  } from 'react-native';
 
 interface GlassCardProps {
   children: React.ReactNode;
@@ -25,16 +25,15 @@ const GlassCard: React.FC<GlassCardProps> = ({ children, style, onPress }) => {
   return content;
 };
 
-const hairline = StyleSheet.hairlineWidth || 1 / PixelRatio.get();
+
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: 'rgba(255, 255, 255, 0.58)',
     borderRadius: 20,
-    borderWidth: hairline,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderWidth: 0,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: 'rgba(255, 255, 255, 0.75)',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
