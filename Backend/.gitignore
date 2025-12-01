@@ -1,0 +1,16 @@
+# Go artifacts
+/bin/
+/pkg/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+
+# Binary outputs
+/studybuddy
+/backend
+*.exe
+*.out
+*.log
