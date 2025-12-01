@@ -105,6 +105,22 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    // Produce architecture split APKs and an optional universal APK
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            // Set to `true` to also produce a combined universal APK (larger single APK that contains all ABIs).
+            universalApk true
+        }
+    }
+    // For the Android App Bundle (AAB) ensure ABI split information is enabled
+    bundle {
+        abi {
+            enableSplit true
+        }
+    }
 }
 
 dependencies {

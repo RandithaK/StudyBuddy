@@ -187,4 +187,39 @@ curl -X POST https://study-buddy-backend-three.vercel.app/api/query \
 	-d '{"query":"{ __schema { types { name } } }"}'
 ```
 
+	### Build split & universal APKs
+
+	The Android project is configured to produce both per-ABI split APKs (smaller APKs built for a specific CPU architecture) and a universal combined APK (a single large APK containing all ABIs). You will find these outputs in `android/app/build/outputs/apk/release/` after a release build.
+
+	To build the release split and universal APKs and copy them to `./release`:
+	```bash
+	npm run android:prod:assemble && npm run android:prod:collect
+	```
+
+	Key outputs:
+	- Split APKs: `android/app/build/outputs/apk/release/app-arm64-v8a-release.apk` (and similar for other ABIs)
+	- Universal (combined) APK: `android/app/build/outputs/apk/release/app-release-universal.apk`
+
+	Install a split APK to a device (example):
+	```bash
+	adb install -r android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
+	```
+
+	Install the universal APK:
+	```bash
+	adb install -r android/app/build/outputs/apk/release/app-release-universal.apk
+	```
+
+	### Clean up tracked release folder (if needed)
+
+	If you previously committed a `release/` folder to Git, it may still be tracked even after adding it to `.gitignore`. To stop tracking and remove it from the Git index (without deleting your local files), run:
+
+	```bash
+	# Remove release folder from git tracking but keep local files
+	git rm -r --cached release
+	git commit -m "chore: stop tracking release/ artifacts"
+	```
+
+
+
 If you want me to update the `README.md` in the backend repo (`StudyBuddy_Backend/README.md`) with the Vercel URL and notes on `MONGO_URI`, I can do that as a follow-up.
