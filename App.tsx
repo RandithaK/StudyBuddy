@@ -14,17 +14,23 @@ import SplashScreen from './src/screens/SplashScreen';
 import MainTabs from './src/navigation/MainTabs';
 import AccountScreen from './src/screens/AccountScreen';
 import AddEditTaskScreen from './src/screens/AddEditTaskScreen';
+import AddEventScreen from './src/screens/AddEventScreen';
+import AddCourseScreen from './src/screens/AddCourseScreen';
 import { Task } from './src/data/mockData';
 import { client } from './src/api/client';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import AuthStack from './src/navigation/AuthStack';
 
-type AppScreen = 'splash' | 'main' | 'account' | 'addEditTask';
+import EditProfileScreen from './src/screens/EditProfileScreen';
+import DeveloperContactScreen from './src/screens/DeveloperContactScreen';
+
+type AppScreen = 'splash' | 'main' | 'account' | 'addEditTask' | 'addEvent' | 'addCourse' | 'editProfile' | 'developerContact';
 
 function AuthenticatedApp(): React.JSX.Element {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('splash');
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [activeTab, setActiveTab] = useState('Home');
 
   // Auto-dismiss splash screen after 2 seconds
   useEffect(() => {
@@ -45,9 +51,33 @@ function AuthenticatedApp(): React.JSX.Element {
     setCurrentScreen('account');
   };
 
+  const handleNavigateToEditProfile = () => {
+    setCurrentScreen('editProfile');
+  };
+
+  const handleCloseEditProfile = () => {
+    setCurrentScreen('account');
+  };
+
+  const handleNavigateToDeveloperContact = () => {
+    setCurrentScreen('developerContact');
+  };
+
+  const handleCloseDeveloperContact = () => {
+    setCurrentScreen('account');
+  };
+
   const handleAddTask = () => {
     setEditingTask(null);
     setCurrentScreen('addEditTask');
+  };
+
+  const handleAddEvent = () => {
+    setCurrentScreen('addEvent');
+  };
+
+  const handleAddCourse = () => {
+    setCurrentScreen('addCourse');
   };
 
   const handleEditTask = (task: Task) => {
@@ -55,14 +85,21 @@ function AuthenticatedApp(): React.JSX.Element {
     setCurrentScreen('addEditTask');
   };
 
-  const handleCloseTaskForm = () => {
+  const handleCloseForm = () => {
     setEditingTask(null);
     setCurrentScreen('main');
   };
 
-  const handleSaveTask = (task: Task) => {
-    console.log('Task saved:', task);
+  const handleSaveTask = () => {
     setEditingTask(null);
+    setCurrentScreen('main');
+  };
+
+  const handleSaveEvent = () => {
+    setCurrentScreen('main');
+  };
+
+  const handleSaveCourse = () => {
     setCurrentScreen('main');
   };
 
@@ -74,6 +111,10 @@ function AuthenticatedApp(): React.JSX.Element {
     setSelectedCourse(null);
   };
 
+  const handleTabChange = (tabName: string) => {
+    setActiveTab(tabName);
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       case 'splash':
@@ -82,7 +123,30 @@ function AuthenticatedApp(): React.JSX.Element {
       case 'account':
         return (
           <SafeAreaView style={styles.safeArea} edges={['top']}>
-            <AccountScreen />
+            <AccountScreen 
+              onBack={() => setCurrentScreen('main')}
+              onNavigateToEditProfile={handleNavigateToEditProfile}
+              onNavigateToDeveloperContact={handleNavigateToDeveloperContact}
+            />
+          </SafeAreaView>
+        );
+
+      case 'developerContact':
+        return (
+          <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <DeveloperContactScreen
+              onBack={handleCloseDeveloperContact}
+            />
+          </SafeAreaView>
+        );
+
+      case 'editProfile':
+        return (
+          <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <EditProfileScreen
+              onBack={handleCloseEditProfile}
+              onSave={handleCloseEditProfile}
+            />
           </SafeAreaView>
         );
 
@@ -91,8 +155,28 @@ function AuthenticatedApp(): React.JSX.Element {
           <SafeAreaView style={styles.safeArea} edges={['top']}>
             <AddEditTaskScreen
               task={editingTask}
-              onClose={handleCloseTaskForm}
+              onClose={handleCloseForm}
               onSave={handleSaveTask}
+            />
+          </SafeAreaView>
+        );
+
+      case 'addEvent':
+        return (
+          <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <AddEventScreen
+              onClose={handleCloseForm}
+              onSave={handleSaveEvent}
+            />
+          </SafeAreaView>
+        );
+
+      case 'addCourse':
+        return (
+          <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <AddCourseScreen
+              onClose={handleCloseForm}
+              onSave={handleSaveCourse}
             />
           </SafeAreaView>
         );
@@ -104,11 +188,15 @@ function AuthenticatedApp(): React.JSX.Element {
             <SafeAreaView style={styles.safeArea} edges={['top']}>
               <MainTabs
                 onAddTask={handleAddTask}
+                onAddEvent={handleAddEvent}
+                onAddCourse={handleAddCourse}
                 onNavigateToAccount={handleNavigateToAccount}
                 selectedCourse={selectedCourse}
                 onSelectCourse={handleSelectCourse}
                 onEditTask={handleEditTask}
                 onClearCourse={handleClearCourse}
+                onTabChange={handleTabChange}
+                initialRouteName={activeTab}
               />
             </SafeAreaView>
           </NavigationContainer>
