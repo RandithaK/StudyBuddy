@@ -1,14 +1,14 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# StudyBuddy (React Native)
 
-# Getting Started
+This is a React Native project bootstrapped with `@react-native-community/cli`.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Getting Started
 
-## Step 1: Start Metro
+> Note: Make sure you have completed the React Native environment setup before continuing: https://reactnative.dev/docs/environment-setup
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### Step 1 — Start Metro
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+From the project root, start the Metro bundler:
 
 ```sh
 # Using npm
@@ -18,11 +18,11 @@ npm start
 yarn start
 ```
 
-## Step 2: Build and run your app
+### Step 2 — Build and run your app
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+With Metro running, open another terminal and run a build command.
 
-### Android
+Android:
 
 ```sh
 # Using npm
@@ -32,23 +32,17 @@ npm run android
 yarn android
 ```
 
-### iOS
+iOS:
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+If this is the first time or you've updated native dependencies:
 
 ```sh
+# Install CocoaPods dependencies (run once or when native deps change)
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Then run:
 
 ```sh
 # Using npm
@@ -58,168 +52,205 @@ npm run ios
 yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+You can also open the Android or iOS project in Android Studio/Xcode and run builds from there.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### Step 3 — Modify your app
 
-## Step 3: Modify your app
+Open `App.tsx` and make a change. Fast Refresh will automatically update the running app.
 
-Now that you have successfully run the app, let's make changes!
+To force a reload:
+- Android: Press R twice or open the Dev Menu (Ctrl/Cmd+M) and select "Reload".
+- iOS: Press R in the Simulator.
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Congratulations!
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+You’ve successfully run and modified your React Native app.
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### Next steps
+- Integrate this into an existing app: https://reactnative.dev/docs/integration-with-existing-apps
+- Learn more about React Native: https://reactnative.dev/docs/getting-started
 
-## Congratulations! :tada:
+## Troubleshooting
 
-You've successfully run and modified your React Native App. :partying_face:
+If you encounter problems, refer to the official troubleshooting page: https://reactnative.dev/docs/troubleshooting
 
-### Now what?
+## Learn more
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+- React Native website: https://reactnative.dev
+- Getting Started/Environment setup: https://reactnative.dev/docs/environment-setup
+- Docs/Guides: https://reactnative.dev/docs
+- Blog: https://reactnative.dev/blog
+- Source: https://github.com/facebook/react-native
 
-# Troubleshooting
+---
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## Using the production backend & building for release
 
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
-
-## Using the production backend & building for release 🔧
-
-This project supports multiple `.env` files and can be built with a production backend by setting `ENVFILE` at build time or by copying `.env.production` over `.env`.
+This project supports multiple `.env` files. By setting `ENVFILE` at build time or copying `.env.production` to `.env`, the app can use production values.
 
 ### Environment files
+- `.env` — development values (e.g., emulator/proxy to `10.0.2.2`).
+- `.env.production` — production values (e.g., `API_URL` pointing to the Vercel host).
 
-- `.env` — default local env used for development (emulator/proxy to `10.0.2.2`).
-- `.env.production` — production values (we added a file which points `API_URL` to the Vercel host).
-
-`babel.config.js` reads `ENVFILE` at build time to determine which env file should be used by `react-native-dotenv`.
+`babel.config.js` reads `ENVFILE` at build time to determine which env file is used by `react-native-dotenv`.
 
 ### Production backend
 
-The production backend for this project is hosted at:
+Set this URL as `API_URL` in `.env.production`:
 
 ```
 https://study-buddy-backend-three.vercel.app/api/query
 ```
 
-This should be set as `API_URL` in `.env.production`.
-
 ### Useful scripts
 
-We've added scripts to `package.json` that allow you to build and run with a specific env file.
-
-- Run Android with the development `.env`:
+- Run Android with dev env:
 ```sh
 npm run android:debug:env
 ```
-- Run Android with the production env (uses `.env.production`):
+
+- Run Android with production env:
 ```sh
 npm run android:prod:env
 ```
-- Create a release APK (assemble):
+
+- Create a release APK:
 ```sh
 npm run android:prod:assemble
 ```
+
 - Build an Android App Bundle (AAB):
 ```sh
 npm run android:prod:bundle
 ```
-- Install a release build on a connected device (requires signing config):
+
+- Install a release build on a connected device (requires signing):
 ```sh
 npm run android:prod:install
 ```
-- Copy `.env.production` to `.env` if needed:
+
+- Copy `.env.production` to `.env`:
 ```sh
 npm run android:copy-prod-env
 ```
 
 ### Build notes and tips
 
-- If you switch env files, always restart Metro with cache reset:
+- Whenever you switch env files, restart Metro and reset the cache:
 ```sh
 npx react-native start --reset-cache
 ```
-- The `ENVFILE` variable is read by Babel at build-time; make sure it is set when running the bundler or Gradle tasks.
-- For release builds that are going to the Play Store, make sure to configure a release keystore and signing information in `android/` (see `android/app/build.gradle`), and keep passwords in `gradle.properties` or CI secrets.
-- Use network inspection (Android Studio Logcat / Chrome DevTools) to confirm runtime network requests go to your production host.
 
-### Install dependencies first
+- The `ENVFILE` variable is read at build time; make sure it is set when running bundler/Gradle tasks.
 
-Before running any of the scripts above make sure you've installed npm dependencies in the root of the project:
+- For release builds going to the Play Store, configure release keystore and signing in `android/` (see `android/app/build.gradle`). Keep keystore passwords out of the repo (use `gradle.properties`, CI secrets, or local environment).
+
+- Use Android Studio Logcat or Chrome DevTools to inspect network requests and verify they point to the intended backend.
+
+### Install dependencies
+
+Install npm dependencies in the project root before running scripts:
 
 ```bash
 npm install
+# OR on CI:
+npm ci
 ```
 
-If you prefer not to install `cross-env`, or if you're on Linux/macOS, you can use the native env assignment for running commands:
+On Linux/macOS you can export ENVFILE inline (no cross-env required):
 
 ```bash
-# Linux/macOS (no cross-env required)
 ENVFILE=.env.production npx react-native run-android
 ```
 
-If you still see `cross-env: not found`, run `npm install` and then retry the script; on CI use `npm ci` to make sure dev dependencies are installed.
+If `cross-env: not found`, ensure `npm install` or `npm ci` is executed.
 
 ### Verification commands
 
-Check backend health quickly via curl:
+Check backend health:
 ```sh
 curl https://study-buddy-backend-three.vercel.app/api/health
 ```
 
-Check a sample GraphQL request (example):
+Check a sample GraphQL request:
 ```sh
 curl -X POST https://study-buddy-backend-three.vercel.app/api/query \
 	-H "Content-Type: application/json" \
 	-d '{"query":"{ __schema { types { name } } }"}'
 ```
 
-	### Build split & universal APKs
+---
 
-	The Android project is configured to produce both per-ABI split APKs (smaller APKs built for a specific CPU architecture) and a universal combined APK (a single large APK containing all ABIs). You will find these outputs in `android/app/build/outputs/apk/release/` after a release build.
+## Android release building and collection
 
-	To build the release split and universal APKs and copy them to `./release`:
-	```bash
-	npm run android:prod:assemble && npm run android:prod:collect
-	```
+The Android project is configured to produce both per-ABI split APKs and a universal APK. After a release build, you'll find artifacts under `android/app/build/outputs/`.
 
-	Key outputs:
-	- Split APKs: `android/app/build/outputs/apk/release/app-arm64-v8a-release.apk` (and similar for other ABIs)
-	- Universal (combined) APK: `android/app/build/outputs/apk/release/app-release-universal.apk`
+To build releases and collect them into `./release`, run this command — this is how to release:
 
-	Install a split APK to a device (example):
-	```bash
-	adb install -r android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
-	```
+```bash
+# Build release and copy artifacts to ./release
+npm run android:prod:assemble && npm run android:prod:collect
+```
 
-	Install the universal APK:
-	```bash
-	adb install -r android/app/build/outputs/apk/release/app-release-universal.apk
-	```
+Example terminal output for the release process:
 
-	### Clean up tracked release folder (if needed)
+```bash
+randitha@randithadesktop:~/Desktop/IT/UoM/Human Computer Interaction/Development/StudyBuddy$ npm run android:prod:assemble && npm run android:prod:collect
 
-	If you previously committed a `release/` folder to Git, it may still be tracked even after adding it to `.gitignore`. To stop tracking and remove it from the Git index (without deleting your local files), run:
-
-	```bash
-	# Remove release folder from git tracking but keep local files
-	git rm -r --cached release
-	git commit -m "chore: stop tracking release/ artifacts"
-	```
+> StudyBuddy@0.0.1 android:prod:assemble
+> cd android && npx cross-env ENVFILE=.env.production ./gradlew assembleRelease
 
 
+[Incubating] Problems report is available at: file:///home/randitha/Desktop/IT/UoM/Human%20Computer%20Interaction/Development/StudyBuddy/android/build/reports/problems/problems-report.html
 
-If you want me to update the `README.md` in the backend repo (`StudyBuddy_Backend/README.md`) with the Vercel URL and notes on `MONGO_URI`, I can do that as a follow-up.
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 2s
+386 actionable tasks: 27 executed, 359 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
+
+> StudyBuddy@0.0.1 android:prod:collect
+> mkdir -p ./release && cp android/app/build/outputs/apk/release/* ./release || true
+
+cp: -r not specified; omitting directory 'android/app/build/outputs/apk/release/baselineProfiles'
+randitha@randithadesktop:~/Desktop/IT/UoM/Human Computer Interaction/Development/StudyBuddy$ 
+```
+
+Recommended improvements for the `collect` script:
+- Copy only APKs/AABs, avoid directories, and error on failure (remove `|| true` in CI).
+- Example `collect` script (copy APKs and AABs recursively):
+```bash
+mkdir -p ./release && cp -r android/app/build/outputs/apk/release/*.apk ./release || true
+mkdir -p ./release && cp -r android/app/build/outputs/bundle/release/*.aab ./release || true
+```
+
+Or, to copy everything and fail if errors occur:
+```bash
+mkdir -p ./release && cp -r android/app/build/outputs/* ./release
+```
+
+### Important: Signing release builds
+Before publishing to the Play Store:
+1. Create a release keystore using `keytool`.
+2. Add signing properties to `~/.gradle/gradle.properties` or `android/gradle.properties` (do not commit secrets).
+3. Update `android/app/build.gradle` to use release signingConfig for release builds.
+4. Verify signing using `apksigner` or `jarsigner`.
+
+---
+
+## Clean up tracked release artifacts
+
+If `release/` was previously committed, remove it from Git tracking (keeps local files):
+
+```bash
+git rm -r --cached release
+git commit -m "chore: stop tracking release/ artifacts"
+```
+
+---
+
+If you'd like, I can also update the `README.md` in the backend repo (`StudyBuddy_Backend/README.md`) to document the Vercel URL and `MONGO_URI` usage—tell me and I'll update it as a follow-up.
