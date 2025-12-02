@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Export PATH to include Node.js
+export PATH="/home/randitha/.nvm/versions/node/v22.18.0/bin:$PATH"
+
 #
 # Copyright © 2015 the original authors.
 #

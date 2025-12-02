@@ -18,4 +18,26 @@ buildscript {
     }
 }
 
+// Configure React Native Gradle Plugin
+project.ext.react = [
+    nodeExecutableAndArgs: ["/home/randitha/.nvm/versions/node/v22.18.0/bin/node"]
+]
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android {
+                compileSdk 36
+                buildToolsVersion "36.0.0"
+            }
+        }
+    }
+}
+
+allprojects {
+    tasks.withType(Exec) {
+        environment "PATH", "/home/randitha/.nvm/versions/node/v22.18.0/bin:" + System.getenv("PATH")
+    }
+}
+
 apply plugin: "com.facebook.react.rootproject"
