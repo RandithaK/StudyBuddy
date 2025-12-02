@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import { UPDATE_USER_MUTATION, CHANGE_PASSWORD_MUTATION } from '../api/queries';
 import GlassCard from '../components/GlassCard';
 import { hairline, subtleBorder, cardBG } from '../theme';
-import { ChevronLeftIcon, UserIcon, MailIcon, SaveIcon, LockIcon } from '../components/Icons';
+import { ChevronLeftIcon, UserIcon, MailIcon, SaveIcon, LockIcon, EyeIcon, EyeOffIcon } from '../components/Icons';
 
 interface EditProfileScreenProps {
   onBack: () => void;
@@ -32,6 +32,9 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack, onSave })
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const [updateUser, { loading }] = useMutation(UPDATE_USER_MUTATION, {
     onCompleted: () => {
@@ -163,14 +166,26 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack, onSave })
                   <LockIcon size={16} color="#6366f1" />
                   <Text style={styles.label}>Current Password</Text>
                 </View>
-                <TextInput
-                  style={styles.input}
-                  value={currentPassword}
-                  onChangeText={setCurrentPassword}
-                  placeholder="Enter current password"
-                  placeholderTextColor="#9ca3af"
-                  secureTextEntry
-                />
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    style={styles.passwordInput}
+                    value={currentPassword}
+                    onChangeText={setCurrentPassword}
+                    placeholder="Enter current password"
+                    placeholderTextColor="#9ca3af"
+                    secureTextEntry={!showCurrentPassword}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                    style={styles.eyeIcon}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeOffIcon size={20} color="#6b7280" />
+                    ) : (
+                      <EyeIcon size={20} color="#6b7280" />
+                    )}
+                  </TouchableOpacity>
+                </View>
               </GlassCard>
 
               <GlassCard style={styles.inputGroup}>
@@ -178,14 +193,26 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack, onSave })
                   <LockIcon size={16} color="#6366f1" />
                   <Text style={styles.label}>New Password</Text>
                 </View>
-                <TextInput
-                  style={styles.input}
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  placeholder="Enter new password"
-                  placeholderTextColor="#9ca3af"
-                  secureTextEntry
-                />
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    style={styles.passwordInput}
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    placeholder="Enter new password"
+                    placeholderTextColor="#9ca3af"
+                    secureTextEntry={!showNewPassword}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowNewPassword(!showNewPassword)}
+                    style={styles.eyeIcon}
+                  >
+                    {showNewPassword ? (
+                      <EyeOffIcon size={20} color="#6b7280" />
+                    ) : (
+                      <EyeIcon size={20} color="#6b7280" />
+                    )}
+                  </TouchableOpacity>
+                </View>
               </GlassCard>
 
               <GlassCard style={styles.inputGroup}>
@@ -193,14 +220,26 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack, onSave })
                   <LockIcon size={16} color="#6366f1" />
                   <Text style={styles.label}>Confirm New Password</Text>
                 </View>
-                <TextInput
-                  style={styles.input}
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="Confirm new password"
-                  placeholderTextColor="#9ca3af"
-                  secureTextEntry
-                />
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    style={styles.passwordInput}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="Confirm new password"
+                    placeholderTextColor="#9ca3af"
+                    secureTextEntry={!showConfirmPassword}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={styles.eyeIcon}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOffIcon size={20} color="#6b7280" />
+                    ) : (
+                      <EyeIcon size={20} color="#6b7280" />
+                    )}
+                  </TouchableOpacity>
+                </View>
               </GlassCard>
 
               <TouchableOpacity
@@ -308,6 +347,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1f2937',
     padding: 0,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1f2937',
+    padding: 0,
+  },
+  eyeIcon: {
+    padding: 4,
   },
   saveButtonContainer: {
     marginTop: 32,

@@ -14,13 +14,14 @@ import { useMutation } from '@apollo/client';
 import { LOGIN_MUTATION } from '../api/queries';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
-import { AppLogo } from '../components/Icons';
+import { AppLogo, EyeIcon, EyeOffIcon } from '../components/Icons';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loginMutation, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted: async (data: any) => {
@@ -85,14 +86,26 @@ const LoginScreen = () => {
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              placeholderTextColor="#9ca3af"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Enter your password"
+                placeholderTextColor="#9ca3af"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                {showPassword ? (
+                  <EyeOffIcon size={20} color="#6b7280" />
+                ) : (
+                  <EyeIcon size={20} color="#6b7280" />
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
 
           <TouchableOpacity
@@ -194,6 +207,23 @@ const styles = StyleSheet.create({
     color: '#1f2937',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+    color: '#1f2937',
+  },
+  eyeIcon: {
+    padding: 12,
   },
   button: {
     padding: 16,
