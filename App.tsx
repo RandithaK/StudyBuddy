@@ -236,7 +236,80 @@ function Root() {
   return user ? <AuthenticatedApp /> : <AuthStack />;
 }
 
+import BackgroundFetch from 'react-native-background-fetch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from './src/api/client';
+
+import { notificationService } from './src/services/NotificationService';
+
+// Define the background task
+const backgroundTask = async (taskId: string) => {
+  console.log('[BackgroundFetch] taskId: ', taskId);
+
+  try {
+    // Check pending triggers
+    const triggers = await notificationService.getPendingTriggers();
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+    
+    // Find triggers that fired more than 1 hour ago
+    const overdueTriggers = triggers.filter((t: any) => now > t.timestamp + oneHour);
+
+    if (overdueTriggers.length > 0) {
+        console.log(`[BackgroundFetch] Found ${overdueTriggers.length} overdue notifications. Checking with backend...`);
+        
+        const token = await AsyncStorage.getItem('userToken');
+
+        if (token) {
+            // Use BASE_URL from client config or fallback
+            const url = BASE_URL || 'http://10.0.2.2:8080';
+            const response = await fetch(`${url}/api/notifications/check-email-fallback`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            const text = await response.text();
+            console.log('[BackgroundFetch] Response:', text);
+            
+            // Remove processed triggers so we don't check them again
+            for (const t of overdueTriggers) {
+                await notificationService.removePendingTrigger(t.id);
+            }
+        } else {
+            console.log('[BackgroundFetch] No token found');
+        }
+    } else {
+        console.log('[BackgroundFetch] No overdue notifications to process.');
+    }
+
+  } catch (error) {
+    console.error('[BackgroundFetch] Error:', error);
+  }
+
+  // Signal completion
+  BackgroundFetch.finish(taskId);
+};
+
 export default function App() {
+  useEffect(() => {
+    // Configure BackgroundFetch
+    BackgroundFetch.configure(
+      {
+        minimumFetchInterval: 15, // 15 minutes
+        stopOnTerminate: false,
+        startOnBoot: true,
+        enableHeadless: true,
+        forceAlarmManager: false,
+      },
+      backgroundTask,
+      (error) => {
+        console.log('[BackgroundFetch] Failed to start:', error);
+      }
+    );
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <SafeAreaProvider>

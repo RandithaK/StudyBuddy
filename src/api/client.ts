@@ -3,6 +3,9 @@ import { setContext } from '@apollo/client/link/context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
 
+// Export BASE_URL for use in other parts of the app (like background fetch)
+export const BASE_URL = (API_URL || 'http://10.0.2.2:8086').replace('/query', '');
+
 const httpLink = createHttpLink({
   uri: API_URL || 'http://10.0.2.2:8086/query',
 });
