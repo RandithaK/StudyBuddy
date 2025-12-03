@@ -25,8 +25,8 @@ const LoginScreen = () => {
 
   const [loginMutation, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted: async (data: any) => {
-      const { token, user } = data.login;
-      await login(token, user);
+      const { token, user, refreshToken } = data.login;
+      await login(token, user, refreshToken);
       // Navigation is handled by App.tsx based on auth state usually, 
       // or we can navigate manually if needed.
     },

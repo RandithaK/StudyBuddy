@@ -12,7 +12,7 @@ type AuthContextType = {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (token: string, user: User) => Promise<void>;
+  login: (token: string, user: User, refreshToken?: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -37,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const storedToken = await AsyncStorage.getItem('token');
       const storedUser = await AsyncStorage.getItem('user');
+      // We don't necessarily need to load refreshToken into state, but good to check
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
@@ -48,10 +49,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (newToken: string, newUser: User) => {
+  const login = async (newToken: string, newUser: User, newRefreshToken?: string) => {
     try {
       await AsyncStorage.setItem('token', newToken);
       await AsyncStorage.setItem('user', JSON.stringify(newUser));
+      if (newRefreshToken) {
+        await AsyncStorage.setItem('refreshToken', newRefreshToken);
+      }
       setToken(newToken);
       setUser(newUser);
     } catch (e) {
@@ -62,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('refreshToken');
       await AsyncStorage.removeItem('user');
       setToken(null);
       setUser(null);

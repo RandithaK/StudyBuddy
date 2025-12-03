@@ -226,8 +226,17 @@ function AuthenticatedApp(): React.JSX.Element {
   );
 }
 
+import { onLogout } from './src/api/client';
+
 function Root() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
+
+  useEffect(() => {
+    const unsubscribe = onLogout(() => {
+      logout();
+    });
+    return unsubscribe;
+  }, [logout]);
 
   if (isLoading) {
     return <SplashScreen onContinue={() => {}} />;
