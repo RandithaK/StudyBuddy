@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
   BookIcon,
   UserIcon,
   CheckIcon,
+  BellIcon,
 } from '../components/Icons';
 import {
   formatTime,
@@ -25,14 +26,18 @@ import {
 } from '../data/mockData';
 import { GET_TASKS_QUERY, GET_EVENTS_QUERY, GET_COURSES_QUERY, UPDATE_TASK_MUTATION } from '../api/queries';
 
+import { notificationService } from '../services/NotificationService';
+
 interface HomeScreenProps {
   onAddTask: () => void;
   onNavigateToAccount: () => void;
+  onNavigateToNotifications: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   onAddTask: _onAddTask,
   onNavigateToAccount,
+  onNavigateToNotifications,
 }) => {
   const { data: tasksData, loading: tasksLoading } = useQuery(GET_TASKS_QUERY);
   const { data: eventsData, loading: eventsLoading } = useQuery(GET_EVENTS_QUERY);
@@ -41,6 +46,48 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [updateTask] = useMutation(UPDATE_TASK_MUTATION, {
     refetchQueries: [{ query: GET_TASKS_QUERY }, { query: GET_COURSES_QUERY }],
   });
+
+  useEffect(() => {
+    notificationService.requestPermission();
+  }, []);
+
+  useEffect(() => {
+    if (tasksData?.tasks) {
+      tasksData.tasks.forEach((task: any) => {
+        if (!task.completed && task.hasReminder) {
+          const dueDateTimeStr = `${task.dueDate}T${task.dueTime}`;
+          const dueDate = new Date(dueDateTimeStr);
+          // Schedule 24 hours before
+          const reminderDate = new Date(dueDate.getTime() - 24 * 60 * 60 * 1000);
+          
+          notificationService.scheduleNotification(
+            `task-${task.id}`,
+            'Task Due Soon',
+            `"${task.title}" is due in 24 hours.`,
+            reminderDate
+          );
+        }
+      });
+    }
+  }, [tasksData]);
+
+  useEffect(() => {
+    if (eventsData?.events) {
+      eventsData.events.forEach((event: any) => {
+        const startDateTimeStr = `${event.date}T${event.startTime}`;
+        const startDate = new Date(startDateTimeStr);
+        // Schedule 1 hour before
+        const reminderDate = new Date(startDate.getTime() - 60 * 60 * 1000);
+
+        notificationService.scheduleNotification(
+          `event-${event.id}`,
+          'Upcoming Event',
+          `"${event.title}" starts in 1 hour.`,
+          reminderDate
+        );
+      });
+    }
+  }, [eventsData]);
 
   const isLoading = tasksLoading || eventsLoading || coursesLoading;
 
@@ -119,12 +166,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           <Text style={styles.title}>Study Planner</Text>
           <Text style={styles.dateText}>{dateString}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.avatarButton}
-          onPress={onNavigateToAccount}
-        >
-          <UserIcon size={20} color="#374151" />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={onNavigateToNotifications}
+          >
+            <BellIcon size={24} color="#374151" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.avatarButton}
+            onPress={onNavigateToAccount}
+          >
+            <UserIcon size={20} color="#374151" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Today's Schedule */}
@@ -305,6 +360,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderWidth: hairline,
+    borderColor: subtleBorder,
   },
   scheduleCard: {
     padding: 20,

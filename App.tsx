@@ -23,8 +23,9 @@ import AuthStack from './src/navigation/AuthStack';
 
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import DeveloperContactScreen from './src/screens/DeveloperContactScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
 
-type AppScreen = 'splash' | 'main' | 'account' | 'addEditTask' | 'addEvent' | 'addCourse' | 'editProfile' | 'developerContact';
+type AppScreen = 'splash' | 'main' | 'account' | 'addEditTask' | 'addEvent' | 'addCourse' | 'editProfile' | 'developerContact' | 'notifications';
 
 function AuthenticatedApp(): React.JSX.Element {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('splash');
@@ -65,6 +66,14 @@ function AuthenticatedApp(): React.JSX.Element {
 
   const handleCloseDeveloperContact = () => {
     setCurrentScreen('account');
+  };
+
+  const handleNavigateToNotifications = () => {
+    setCurrentScreen('notifications');
+  };
+
+  const handleCloseNotifications = () => {
+    setCurrentScreen('main');
   };
 
   const handleAddTask = () => {
@@ -131,6 +140,13 @@ function AuthenticatedApp(): React.JSX.Element {
           </SafeAreaView>
         );
 
+      case 'notifications':
+        return (
+          <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <NotificationsScreen onBack={handleCloseNotifications} />
+          </SafeAreaView>
+        );
+
       case 'developerContact':
         return (
           <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -191,6 +207,7 @@ function AuthenticatedApp(): React.JSX.Element {
                 onAddEvent={handleAddEvent}
                 onAddCourse={handleAddCourse}
                 onNavigateToAccount={handleNavigateToAccount}
+                onNavigateToNotifications={handleNavigateToNotifications}
                 selectedCourse={selectedCourse}
                 onSelectCourse={handleSelectCourse}
                 onEditTask={handleEditTask}

@@ -178,3 +178,22 @@ export const CHANGE_PASSWORD_MUTATION = gql`
     }
   }
 `;
+
+export const GET_NOTIFICATIONS_QUERY = gql`
+  query GetNotifications {
+    notifications {
+      id
+      message
+      type
+      referenceId
+      read
+      createdAt
+    }
+  }
+`;
+
+export const MARK_NOTIFICATION_AS_READ_MUTATION = gql`
+  mutation MarkNotificationAsRead($id: ID!) {
+    markNotificationAsRead(id: $id)
+  }
+`;

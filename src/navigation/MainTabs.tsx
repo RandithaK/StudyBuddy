@@ -25,6 +25,7 @@ interface MainTabsProps {
   onAddEvent: () => void;
   onAddCourse: () => void;
   onNavigateToAccount: () => void;
+  onNavigateToNotifications: () => void;
   selectedCourse: string | null;
   onSelectCourse: (courseId: string) => void;
   onEditTask: (task: any) => void;
@@ -38,6 +39,7 @@ const MainTabs: React.FC<MainTabsProps> = ({
   onAddEvent,
   onAddCourse,
   onNavigateToAccount,
+  onNavigateToNotifications,
   selectedCourse,
   onSelectCourse,
   onEditTask,
@@ -90,6 +92,7 @@ const MainTabs: React.FC<MainTabsProps> = ({
             <HomeScreen
               onAddTask={onAddTask}
               onNavigateToAccount={onNavigateToAccount}
+              onNavigateToNotifications={onNavigateToNotifications}
             />
           )}
         </Tab.Screen>
